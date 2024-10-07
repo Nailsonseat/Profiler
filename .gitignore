@@ -1,2 +1,4 @@
 # Enviornment
 .idea
+.venv
+__pycache__
