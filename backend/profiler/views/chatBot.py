@@ -3,18 +3,29 @@ from datetime import datetime
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from backend.profiler.serializations.chatBot import GeminiResponseSerializer
+from profiler.serializations.chatBot import ChatBotResponseSerializer
+from dotenv import load_dotenv
+import google.generativeai as genai
+import os
+
+load_dotenv()
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 
-class GeminiAPIView(APIView):
+class ChatBotAPIView(APIView):
     def post(self, request):
         input_text = request.data.get('input', '')
 
         start_time = time.time()
 
-        output_text = f"Processed: {input_text}"
-
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        output_response = model.generate_content(input_text)
         processing_time = time.time() - start_time
+
+        output_text = ""
+        if output_response._done and output_response._result.candidates:
+            output_text = output_response._result.candidates[0].content.parts[0].text
 
         response_data = {
             'input': input_text,
@@ -23,7 +34,9 @@ class GeminiAPIView(APIView):
             'processing_time': processing_time,
         }
 
-        serializer = GeminiResponseSerializer(data=response_data)
-        if serializer.is_valid():
+        serializer = ChatBotResponseSerializer(data=response_data)
+
+        if serializer.is_valid():  # Validate the response data
             return Response(serializer.data, status=status.HTTP_200_OK)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 
-class GeminiResponseSerializer(serializers.Serializer):
+class ChatBotResponseSerializer(serializers.Serializer):
     input = serializers.CharField()
     output = serializers.CharField()
     timestamp = serializers.DateTimeField()
