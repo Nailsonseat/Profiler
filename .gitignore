@@ -4,5 +4,6 @@
 __pycache__
 .idx
 .env
+staticfiles
 db.*
 *.lock
