@@ -8,7 +8,7 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/',
       pageBuilder: (context, state) => const MaterialPage<void>(
-        child: MyHomePage(title: 'Flutter Demo Home Page'),
+        child: Home(),
       ),
     ),
   ],
