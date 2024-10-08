@@ -1,12 +1,16 @@
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-9=s*wk-bzv=p08706rr_ovb%#+ze$$n_2ordnt6p-&&&_rx!r)'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG') != 'False'
 
 ALLOWED_HOSTS = []
 
@@ -36,7 +40,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:33535',
+    'http://localhost:33479',
 ]
 
 ROOT_URLCONF = 'server.urls'
