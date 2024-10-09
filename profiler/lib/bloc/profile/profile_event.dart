@@ -10,3 +10,12 @@ class ProfileFetch extends ProfileEvent {
 
   ProfileFetch({required this.pageKey});
 }
+
+class ProfileUpdate extends ProfileEvent {
+  final Profile updatedProfile;
+
+  ProfileUpdate({required this.updatedProfile});
+
+  @override
+  List<Object> get props => [updatedProfile];
+}
