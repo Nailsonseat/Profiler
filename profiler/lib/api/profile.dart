@@ -52,7 +52,7 @@ class ProfileApi {
   
   Future<Profile> updateProfile(int id, Profile profile) async {
     try {
-      final response = await _client.put('/api/profiles/$id/', data: profile.toJson());
+      final response = await _client.patch('/api/profiles/$id/', data: profile.toJson());
       return Profile.fromJson(response.data);
     } catch (e) {
       _logger.e('Error updating profile with ID $id: $e');
