@@ -4,3 +4,9 @@ class AppConstants {
   static const double desktopScaleWidth = 2560;
   static const double mobileScaleWidth = 450;
 }
+
+
+class ChatBot{
+  static String user = 'user';
+  static String bot = 'bot';
+}
