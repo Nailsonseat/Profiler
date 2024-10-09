@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:profiler/pages/home/components/profile_update_dialog.dart';
+import '../../../models/profile.dart';
 
 class ProfileTile extends StatelessWidget {
   const ProfileTile({
     super.key,
-    required this.firstName,
-    required this.lastName,
-    required this.email,
-    required this.userName,
+    required this.profile,
   });
 
-  final String firstName;
-  final String lastName;
-  final String email;
-  final String userName;
+  final Profile profile;
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +29,46 @@ class ProfileTile extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(userName, style: GoogleFonts.jost(fontSize: 42)),
-                  Text('Name: $firstName $lastName', style: GoogleFonts.jost(fontSize: 24)),
-                  Text('Email: $email', style: GoogleFonts.jost(fontSize: 24)),
+                  Text(profile.userName, style: GoogleFonts.jost(fontSize: 42)),
+                  Text('Name: ${profile.firstName} ${profile.lastName}', style: GoogleFonts.jost(fontSize: 24)),
+                  Text('Email: ${profile.email}', style: GoogleFonts.jost(fontSize: 24)),
                 ],
+              ),
+              const Spacer(),
+              SizedBox(
+                width: 60,
+                height: 60,
+                child: IconButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) => ProfileUpdateDialog(
+                        profile: profile,
+                        onUpdate: (updatedProfile) {
+                        },
+                      ),
+                    );
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all(Colors.blue[100]),
+                    shape: WidgetStateProperty.all(const CircleBorder()),
+                  ),
+                  icon: const Icon(Icons.edit, color: Colors.blue),
+                ),
+              ),
+              const SizedBox(width: 30),
+              SizedBox(
+                width: 60,
+                height: 60,
+                child: IconButton(
+                  onPressed: () {},
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all(Colors.red[100]),
+                    shape: WidgetStateProperty.all(const CircleBorder()),
+                  ),
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                ),
               ),
             ],
           ),
