@@ -35,47 +35,50 @@ class ProfileUpdateDialog extends StatelessWidget {
         'Update Profile',
         style: GoogleFonts.poppins(fontSize: 42),
       ),
-      content: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                LabelledTextField(
-                  label: 'User Name',
-                  hintText: 'Enter User Name',
-                  controller: _userNameController,
-                  validator: (value) => Validators.usernameValidator(value),
-                ),
-                const SizedBox(width: 20),
-                LabelledTextField(
-                  label: 'First Name',
-                  hintText: 'Enter First Name',
-                  controller: _firstNameController,
-                  validator: (value) => Validators.nameValidator(value),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                LabelledTextField(
-                  label: 'Last Name',
-                  hintText: 'Enter Last Name',
-                  controller: _lastNameController,
-                  validator: (value) => Validators.nameValidator(value),
-                ),
-                const SizedBox(width: 20),
-                LabelledTextField(
-                  label: 'Email',
-                  hintText: 'Enter Email',
-                  controller: _emailController,
-                  validator: (value) => Validators.emailValidator(value),
-                ),
-              ],
-            ),
-          ],
+      content: Padding(
+        padding: const EdgeInsets.only(top: 20),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  LabelledTextField(
+                    label: 'User Name',
+                    hintText: 'Enter User Name',
+                    controller: _userNameController,
+                    validator: (value) => Validators.usernameValidator(value),
+                  ),
+                  const SizedBox(width: 20),
+                  LabelledTextField(
+                    label: 'First Name',
+                    hintText: 'Enter First Name',
+                    controller: _firstNameController,
+                    validator: (value) => Validators.nameValidator(value),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  LabelledTextField(
+                    label: 'Last Name',
+                    hintText: 'Enter Last Name',
+                    controller: _lastNameController,
+                    validator: (value) => Validators.nameValidator(value),
+                  ),
+                  const SizedBox(width: 20),
+                  LabelledTextField(
+                    label: 'Email',
+                    hintText: 'Enter Email',
+                    controller: _emailController,
+                    validator: (value) => Validators.emailValidator(value),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
       actions: [
