@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:profiler/pages/home/components/profile_update_dialog.dart';
+import '../../../bloc/profile/profile_bloc.dart';
 import '../../../models/profile.dart';
 
 class ProfileTile extends StatelessWidget {
@@ -35,27 +37,38 @@ class ProfileTile extends StatelessWidget {
                 ],
               ),
               const Spacer(),
-              SizedBox(
-                width: 60,
-                height: 60,
-                child: IconButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) => ProfileUpdateDialog(
-                        profile: profile,
-                        onUpdate: (updatedProfile) {
-                        },
+              BlocBuilder<ProfileBloc, ProfileState>(
+                builder: (context, state) {
+                  return SizedBox(
+                    width: 60,
+                    height: 60,
+                    child: IconButton(
+                      onPressed: (state is ProfileLoading)
+                          ? () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Profiles are being loaded. Please wait...'),
+                                ),
+                              );
+                            }
+                          : () {
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) => ProfileUpdateDialog(
+                                  profile: profile,
+                                  onUpdate: (updatedProfile) {},
+                                ),
+                              );
+                            },
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(Colors.blue[100]),
+                        shape: WidgetStateProperty.all(const CircleBorder()),
                       ),
-                    );
-                  },
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(Colors.blue[100]),
-                    shape: WidgetStateProperty.all(const CircleBorder()),
-                  ),
-                  icon: const Icon(Icons.edit, color: Colors.blue),
-                ),
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                    ),
+                  );
+                },
               ),
               const SizedBox(width: 30),
               SizedBox(
