@@ -19,33 +19,73 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         super(ProfileInitial()) {
     on<ProfileFetch>(_onFetch);
     on<ProfileUpdate>(_onUpdate);
+    on<ProfileDelete>(_onDelete);
+    on<ProfileCreate>(_onCreate);
+  }
+
+  Future<void> _onCreate(ProfileCreate event, Emitter<ProfileState> emit) async {
+    if (state is ProfileLoaded) {
+      final currentState = state as ProfileLoaded;
+      final updatedProfiles = List<Profile>.from(currentState.profiles);
+
+      emit(ProfileLoading());
+      try {
+        final createdProfile = await _profileApi.createProfile(event.newProfile);
+
+        updatedProfiles.add(createdProfile);
+
+        pagingController.itemList = updatedProfiles;
+
+        emit(ProfileLoaded(
+          profiles: updatedProfiles,
+          pageKey: currentState.pageKey,
+          isLastPage: currentState.isLastPage,
+        ));
+      } catch (error) {
+        Logger().e('Error creating profile: $error');
+        emit(ProfileError(message: error.toString()));
+      }
+    }
   }
 
   Future<void> _onFetch(ProfileFetch event, Emitter<ProfileState> emit) async {
     if (state is ProfileLoading) return;
-    List<Profile> currentProfiles = <Profile>[];
+
+    List<Profile> currentProfiles = [];
     if (state is ProfileLoaded) {
-      currentProfiles = (state as ProfileLoaded?)?.profiles ?? [];
+      currentProfiles = (state as ProfileLoaded).profiles;
     }
 
     emit(ProfileLoading());
+
     try {
-      final newItems = await _profileApi.getProfiles(limit: _pageSize, offset: _currentPage);
-      _currentPage += newItems.length;
+      if (event.query != null && event.query!.isNotEmpty) {
+        final searchedProfiles = await _profileApi.getProfiles(query: event.query, limit: _pageSize, offset: 0);
+        pagingController.itemList = searchedProfiles;
+        pagingController.appendLastPage([]);
 
-      emit(ProfileLoaded(
-          profiles: currentProfiles + newItems, pageKey: event.pageKey, isLastPage: newItems.length < _pageSize));
+        emit(ProfileLoaded(
+          profiles: searchedProfiles,
+          pageKey: 0,
+          isLastPage: true,
+        ));
+      } else {
+        final newItems = await _profileApi.getProfiles(limit: _pageSize, offset: _currentPage);
+        _currentPage += newItems.length;
 
-      final currentState = state as ProfileLoaded;
-      try {
+        emit(ProfileLoaded(
+          profiles: currentProfiles + newItems,
+          pageKey: event.pageKey,
+          isLastPage: newItems.length < _pageSize,
+        ));
+
+        final currentState = state as ProfileLoaded;
         if (currentState.isLastPage) {
           pagingController.appendLastPage(currentState.profiles);
         } else {
           final nextPageKey = currentState.pageKey + currentState.profiles.length;
           pagingController.appendPage(newItems, nextPageKey);
         }
-      } catch (error) {
-        pagingController.error = error;
       }
     } catch (error) {
       emit(ProfileError(message: error.toString()));
@@ -77,8 +117,28 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     }
   }
 
-  void reset() {
-    _currentPage = 0;
-    add(ProfileFetch(pageKey: 0));
+  Future<void> _onDelete(ProfileDelete event, Emitter<ProfileState> emit) async {
+    if (state is ProfileLoaded) {
+      final currentState = state as ProfileLoaded;
+      final updatedProfiles = List<Profile>.from(currentState.profiles);
+
+      emit(ProfileLoading());
+      try {
+        await _profileApi.deleteProfile(event.profileId);
+
+        updatedProfiles.removeWhere((profile) => profile.id == event.profileId);
+
+        pagingController.itemList = updatedProfiles;
+
+        emit(ProfileLoaded(
+          profiles: updatedProfiles,
+          pageKey: currentState.pageKey,
+          isLastPage: currentState.isLastPage,
+        ));
+      } catch (error) {
+        Logger().e('Error deleting profile: $error');
+        emit(ProfileError(message: error.toString()));
+      }
+    }
   }
 }

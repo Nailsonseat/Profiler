@@ -21,6 +21,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final TextEditingController _messageController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -31,7 +32,7 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> _fetchPage(int pageKey) async {
-    context.read<ProfileBloc>().add(ProfileFetch(pageKey: pageKey));
+    context.read<ProfileBloc>().add(ProfileFetch(pageKey: pageKey, query: _searchController.text));
   }
 
   void _sendMessage() {
@@ -61,14 +62,29 @@ class _HomeState extends State<Home> {
                   children: [
                     Expanded(
                       flex: 3,
-                      child: SizedBox(
-                        height: 900,
-                        child: PagedListView<int, Profile>(
-                          pagingController: context.read<ProfileBloc>().pagingController,
-                          builderDelegate: PagedChildBuilderDelegate<Profile>(
-                            itemBuilder: (context, item, index) => ProfileTile(profile: item),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 65,
+                            child: SearchBar(
+                              controller: _searchController,
+                              leading: const Icon(Icons.search, size: 30),
+                              onChanged: (query) => _fetchPage(0),
+                              textStyle: WidgetStateProperty.all(GoogleFonts.poppins(fontSize: 21)),
+                              padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 30)),
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 30),
+                          SizedBox(
+                            height: 800,
+                            child: PagedListView<int, Profile>(
+                              pagingController: context.read<ProfileBloc>().pagingController,
+                              builderDelegate: PagedChildBuilderDelegate<Profile>(
+                                itemBuilder: (context, item, index) => ProfileTile(profile: item),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     Expanded(
@@ -102,7 +118,7 @@ class _HomeState extends State<Home> {
                                         reverse: true,
                                         itemBuilder: (context, index) {
                                           final chatMessage = state.messages[index];
-                                          if(index == 0 && chatMessage.role == ChatBot.bot) {
+                                          if (index == 0 && chatMessage.role == ChatBot.bot) {
                                             return AnimatedMessageTile(
                                               message: chatMessage.message,
                                               role: chatMessage.role,
