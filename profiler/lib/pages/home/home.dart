@@ -3,8 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:profiler/bloc/profile/profile_bloc.dart';
+import 'package:profiler/bloc/chatbot/chatbot_bloc.dart';
 import 'package:profiler/models/profile.dart';
+import 'package:responsive_framework/responsive_framework.dart';
+import '../../constants/constants.dart';
+import 'components/animated_message_tile.dart';
 import 'components/home_header.dart';
+import 'components/message_tile.dart';
 import 'components/profile_tile.dart';
 
 class Home extends StatefulWidget {
@@ -15,12 +20,11 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-
-  final PagingController<int, Profile> _pagingController = PagingController(firstPageKey: 0);
+  final TextEditingController _messageController = TextEditingController();
 
   @override
   void initState() {
-    _pagingController.addPageRequestListener((pageKey) {
+    context.read<ProfileBloc>().pagingController.addPageRequestListener((pageKey) {
       _fetchPage(pageKey);
     });
     super.initState();
@@ -30,115 +34,157 @@ class _HomeState extends State<Home> {
     context.read<ProfileBloc>().add(ProfileFetch(pageKey: pageKey));
   }
 
+  void _sendMessage() {
+    if (_messageController.text.isNotEmpty) {
+      context.read<ChatBotBloc>().add(SendMessage(
+            message: _messageController.text,
+            sender: ChatBot.user,
+            receiver: ChatBot.bot,
+          ));
+      _messageController.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 150, vertical: 100),
-          child: Column(
-            children: [
-              const HomeHeader(),
-              const SizedBox(height: 50),
-              Row(
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: SizedBox(
-                      height: 900,
-                      child: BlocListener<ProfileBloc, ProfileState>(
-                        listener: (context, state) {
-                          if (state is ProfileLoaded) {
-                            try {
-                              if (state.isLastPage) {
-                                _pagingController.appendLastPage(state.profiles);
-                              } else {
-                                final nextPageKey = state.pageKey + state.profiles.length;
-                                _pagingController.appendPage(state.profiles, nextPageKey);
-                              }
-                            } catch (error) {
-                              _pagingController.error = error;
-                            }
-                          }
-                        },
+    return ResponsiveScaledBox(
+      width: AppConstants.desktopScaleWidth,
+      child: Scaffold(
+        body: SingleChildScrollView(
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 150, vertical: 100),
+            child: Column(
+              children: [
+                const HomeHeader(),
+                const SizedBox(height: 50),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: SizedBox(
+                        height: 900,
                         child: PagedListView<int, Profile>(
-                          pagingController: _pagingController,
+                          pagingController: context.read<ProfileBloc>().pagingController,
                           builderDelegate: PagedChildBuilderDelegate<Profile>(
-                            itemBuilder: (context, item, index) => ProfileTile(
-                              firstName: item.firstName,
-                              lastName: item.lastName,
-                              email: item.email,
-                              userName: item.userName,
-                            ),
+                            itemBuilder: (context, item, index) => ProfileTile(profile: item),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 50),
-                      height: 880,
-                      width: 600,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 50),
-                          Text('ChatBot', style: GoogleFonts.jost(fontSize: 42)),
-                          Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 50, vertical: 50),
-                            width: double.infinity,
-                            height: 550,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(15),
+                    Expanded(
+                      flex: 2,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 50),
+                        height: 880,
+                        width: 600,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 50),
+                            Text('ChatBot', style: GoogleFonts.jost(fontSize: 42)),
+                            Expanded(
+                              child: BlocBuilder<ChatBotBloc, ChatBotState>(
+                                buildWhen: (previous, current) => current is ChatbotLoaded,
+                                builder: (context, state) {
+                                  if (state is ChatbotLoaded) {
+                                    return Container(
+                                      padding: const EdgeInsets.all(20),
+                                      margin: const EdgeInsets.all(50),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                      child: ListView.builder(
+                                        itemCount: state.messages.length,
+                                        reverse: true,
+                                        itemBuilder: (context, index) {
+                                          final chatMessage = state.messages[index];
+                                          if(index == 0 && chatMessage.role == ChatBot.bot) {
+                                            return AnimatedMessageTile(
+                                              message: chatMessage.message,
+                                              role: chatMessage.role,
+                                              time: chatMessage.time,
+                                            );
+                                          }
+                                          return MessageTile(
+                                            message: chatMessage.message,
+                                            role: chatMessage.role,
+                                            time: chatMessage.time,
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  }
+                                  return const Center(child: Text('No messages yet.'));
+                                },
+                              ),
                             ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: 450,
-                                child: TextFormField(
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    hintText: 'Type your message...',
-                                    contentPadding: const EdgeInsets.all(24),
-                                    hintStyle: GoogleFonts.poppins(fontSize: 21),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(15),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 480,
+                                  child: TextFormField(
+                                    controller: _messageController,
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      hintText: 'Type your message...',
+                                      contentPadding: const EdgeInsets.all(24),
+                                      hintStyle: GoogleFonts.poppins(fontSize: 21),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 20),
-                              SizedBox(
-                                width: 200,
-                                height: 70,
-                                child: FilledButton.tonal(
-                                  onPressed: () {},
-                                  style: ButtonStyle(
-                                    backgroundColor: WidgetStateProperty.all(Colors.purpleAccent[50]),
-                                    shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
-                                  ),
-                                  child: Text('Send', style: GoogleFonts.poppins(fontSize: 26)),
+                                const SizedBox(width: 20),
+                                BlocBuilder<ChatBotBloc, ChatBotState>(
+                                  builder: (context, state) {
+                                    return SizedBox(
+                                      width: 200,
+                                      height: 70,
+                                      child: FilledButton.tonal(
+                                        onPressed: _sendMessage,
+                                        style: ButtonStyle(
+                                          backgroundColor: WidgetStateProperty.all(Colors.purpleAccent[50]),
+                                          shape: WidgetStateProperty.all(
+                                              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text('Send', style: GoogleFonts.poppins(fontSize: 26)),
+                                            if (state is ChatbotLoading) const SizedBox(width: 10),
+                                            if (state is ChatbotLoading)
+                                              const SizedBox(
+                                                width: 25,
+                                                height: 25,
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 1.5,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                            const SizedBox(height: 50),
+                          ],
+                        ),
                       ),
-                    ),
-                  )
-                ],
-              ),
-            ],
+                    )
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
