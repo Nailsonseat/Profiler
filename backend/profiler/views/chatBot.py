@@ -3,7 +3,7 @@ from datetime import datetime
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from profiler.serializations.chatBot import ChatBotResponseSerializer
+from profiler.serializations.chatBot import GenAIResponseSerializer
 from dotenv import load_dotenv
 import google.generativeai as genai
 import os
@@ -34,9 +34,9 @@ class ChatBotAPIView(APIView):
             'processing_time': processing_time,
         }
 
-        serializer = ChatBotResponseSerializer(data=response_data)
+        serializer = GenAIResponseSerializer(data=response_data)
 
-        if serializer.is_valid():  # Validate the response data
+        if serializer.is_valid():
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

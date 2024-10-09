@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 
-class ChatBotResponseSerializer(serializers.Serializer):
+class GenAIResponseSerializer(serializers.Serializer):
     input = serializers.CharField()
     output = serializers.CharField()
     timestamp = serializers.DateTimeField()
