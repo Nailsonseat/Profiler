@@ -3,11 +3,10 @@ from ..models import UserProfile
 from django.db.models import Q
 from ..serializations.userProfile import UserProfileSerializer
 from rest_framework.response import Response
-from rest_framework.response import Response
 
 
 class UserProfileViewSet(viewsets.ModelViewSet):
-    queryset = UserProfile.objects.all()
+    queryset = UserProfile.objects.all().order_by('id')
     serializer_class = UserProfileSerializer
 
     def list(self, request):
@@ -28,9 +27,9 @@ class UserProfileViewSet(viewsets.ModelViewSet):
                 Q(first_name__icontains=query) |
                 Q(last_name__icontains=query) |
                 Q(email__icontains=query)
-            )
+            ).order_by('id')
         else:
-            queryset = UserProfile.objects.all()
+            queryset = UserProfile.objects.all().order_by('id')
 
         paginated_queryset = queryset[offset:offset +
                                       limit] if limit else queryset[offset:]
