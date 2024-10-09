@@ -4,8 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:profiler/routes/routes.dart';
 import 'package:profiler/services/auth/google.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'api/chatbot.dart';
 import 'api/profile.dart';
 import 'bloc/auth/auth_bloc.dart';
+import 'bloc/chatbot/chatbot_bloc.dart';
 import 'bloc/profile/profile_bloc.dart';
 import 'firebase_options.dart';
 
@@ -25,6 +27,7 @@ class Profiler extends StatelessWidget {
       providers: [
         RepositoryProvider<GoogleAuthServices>(create: (context) => GoogleAuthServices()),
         RepositoryProvider<ProfileApi>(create: (context) => ProfileApi()),
+        RepositoryProvider<ChatBotApi>(create: (context) => ChatBotApi()),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -32,6 +35,11 @@ class Profiler extends StatelessWidget {
           BlocProvider<ProfileBloc>(
             create: (context) => ProfileBloc(
               profileApi: RepositoryProvider.of<ProfileApi>(context),
+            ),
+          ),
+          BlocProvider<ChatBotBloc>(
+            create: (context) => ChatBotBloc(
+              chatBotApi: RepositoryProvider.of<ChatBotApi>(context),
             ),
           ),
         ],
