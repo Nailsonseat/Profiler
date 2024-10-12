@@ -22,7 +22,8 @@ class ChatBotAPIView(APIView):
         for i in history:
             history_text += str(i) + ","
 
-        query = history_text + "New query : " + input_text
+        query = history_text + \
+            "New query (Return the response in a string message only): " + input_text
         start_time = time.time()
 
         model = genai.GenerativeModel("gemini-1.5-flash")
