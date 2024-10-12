@@ -12,10 +12,11 @@ class ChatBotApi {
 
   final _logger = Logger();
 
-  Future<ChatMessage> sendMessage(ChatMessage message) async {
+  Future<ChatMessage> sendMessage(ChatMessage message, List<ChatMessage> history) async {
     try {
       final response = await _client.post('/api/chatbot/', data: {
         'input': message.message,
+        'history': history.reversed.map((e) => e.toJson()).toList(),
       });
 
       return ChatMessage(

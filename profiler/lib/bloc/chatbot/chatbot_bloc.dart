@@ -36,7 +36,7 @@ class ChatBotBloc extends Bloc<ChatbotEvent, ChatBotState> {
     emit(ChatbotLoading());
 
     try {
-      final ChatMessage response = await chatBotApi.sendMessage(messages.first);
+      final ChatMessage response = await chatBotApi.sendMessage(messages.first, messages);
       messages = [
         response,
         ...messages,
