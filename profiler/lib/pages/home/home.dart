@@ -62,6 +62,7 @@ class _HomeState extends State<Home> {
                 _buildHeader(),
                 const SizedBox(height: 50),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildProfileSection(),
                     _buildChatSection(context),
