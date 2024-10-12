@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:profiler/constants/validators.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import '../../../bloc/profile/profile_bloc.dart';
 import '../../../components/labelled_text_field.dart';
 import '../../../models/profile.dart';
@@ -11,11 +12,9 @@ class ProfileUpdateDialog extends StatelessWidget {
   ProfileUpdateDialog({
     super.key,
     required this.profile,
-    required this.onUpdate,
   });
 
   final Profile profile;
-  final Function(Profile updatedProfile) onUpdate;
 
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
@@ -30,6 +29,9 @@ class ProfileUpdateDialog extends StatelessWidget {
     _lastNameController.text = profile.lastName;
     _emailController.text = profile.email;
 
+
+    bool isMobile = ResponsiveBreakpoints.of(context).isMobile;
+
     return AlertDialog(
       title: Text(
         'Update Profile',
@@ -42,38 +44,48 @@ class ProfileUpdateDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
+              ResponsiveRowColumn(
+                layout: isMobile ? ResponsiveRowColumnType.COLUMN : ResponsiveRowColumnType.ROW,
                 children: [
-                  LabelledTextField(
-                    label: 'User Name',
-                    hintText: 'Enter User Name',
-                    controller: _userNameController,
-                    validator: (value) => Validators.usernameValidator(value),
+                  ResponsiveRowColumnItem(
+                    child: LabelledTextField(
+                      label: 'User Name',
+                      hintText: 'Enter User Name',
+                      controller: _userNameController,
+                      validator: (value) => Validators.usernameValidator(value),
+                    ),
                   ),
-                  const SizedBox(width: 20),
-                  LabelledTextField(
-                    label: 'First Name',
-                    hintText: 'Enter First Name',
-                    controller: _firstNameController,
-                    validator: (value) => Validators.nameValidator(value),
+                  const ResponsiveRowColumnItem(child: SizedBox(width: 20, height: 20)),
+                  ResponsiveRowColumnItem(
+                    child: LabelledTextField(
+                      label: 'First Name',
+                      hintText: 'Enter First Name',
+                      controller: _firstNameController,
+                      validator: (value) => Validators.nameValidator(value),
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 20),
-              Row(
+              ResponsiveRowColumn(
+                layout: isMobile ? ResponsiveRowColumnType.COLUMN : ResponsiveRowColumnType.ROW,
                 children: [
-                  LabelledTextField(
-                    label: 'Last Name',
-                    hintText: 'Enter Last Name',
-                    controller: _lastNameController,
-                    validator: (value) => Validators.nameValidator(value),
+                  ResponsiveRowColumnItem(
+                    child: LabelledTextField(
+                      label: 'Last Name',
+                      hintText: 'Enter Last Name',
+                      controller: _lastNameController,
+                      validator: (value) => Validators.nameValidator(value),
+                    ),
                   ),
-                  const SizedBox(width: 20),
-                  LabelledTextField(
-                    label: 'Email',
-                    hintText: 'Enter Email',
-                    controller: _emailController,
-                    validator: (value) => Validators.emailValidator(value),
+                  const ResponsiveRowColumnItem(child: SizedBox(width: 20, height: 20)),
+                  ResponsiveRowColumnItem(
+                    child: LabelledTextField(
+                      label: 'Email',
+                      hintText: 'Enter Email',
+                      controller: _emailController,
+                      validator: (value) => Validators.emailValidator(value),
+                    ),
                   ),
                 ],
               ),
@@ -85,7 +97,7 @@ class ProfileUpdateDialog extends StatelessWidget {
         BlocBuilder<ProfileBloc, ProfileState>(
           builder: (context, state) {
             return SizedBox(
-              width: 150,
+              width: 110,
               height: 50,
               child: FilledButton.tonal(
                 style: ButtonStyle(
@@ -97,7 +109,7 @@ class ProfileUpdateDialog extends StatelessWidget {
                     : () {
                         context.pop();
                       },
-                child: Text('Cancel', style: TextStyle(color: Colors.orange[900], fontSize: 18)),
+                child: Text('Cancel', style: TextStyle(color: Colors.orange[900], fontSize: 15)),
               ),
             );
           },
@@ -107,11 +119,14 @@ class ProfileUpdateDialog extends StatelessWidget {
           listener: (context, state) {
             if (state is ProfileLoaded) {
               context.pop();
+              if(context.canPop()) {
+                context.pop();
+              }
             }
           },
           builder: (context, state) {
             return SizedBox(
-              width: 150,
+              width: 130,
               height: 50,
               child: FilledButton.tonal(
                 style: ButtonStyle(
@@ -139,7 +154,7 @@ class ProfileUpdateDialog extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Update', style: TextStyle(color: Colors.blue, fontSize: 18)),
+                    const Text('Update', style: TextStyle(color: Colors.blue, fontSize: 15)),
                     if (state is ProfileLoading) const SizedBox(width: 10),
                     if (state is ProfileLoading)
                       const SizedBox(
