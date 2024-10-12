@@ -49,7 +49,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   }
 
   Future<void> _onFetch(ProfileFetch event, Emitter<ProfileState> emit) async {
-    if (state is ProfileLoading) return;
 
     List<Profile> currentProfiles = [];
     if (state is ProfileLoaded) {
