@@ -16,11 +16,17 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 class ChatBotAPIView(APIView):
     def post(self, request):
         input_text = request.data.get('input', '')
+        history = request.data.get('history', [])
 
+        history_text = ""
+        for i in history:
+            history_text += str(i) + ","
+
+        query = history_text + "New query : " + input_text
         start_time = time.time()
 
         model = genai.GenerativeModel("gemini-1.5-flash")
-        output_response = model.generate_content(input_text)
+        output_response = model.generate_content(query)
         processing_time = time.time() - start_time
 
         output_text = ""
