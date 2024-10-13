@@ -15,6 +15,10 @@ COPY . .
 
 RUN python manage.py collectstatic --noinput
 
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 EXPOSE 8000
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8000","--access-logfile", "-", "server.wsgi:application"]
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--access-logfile", "-", "server.wsgi:application"]
