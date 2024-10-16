@@ -110,7 +110,7 @@ class _HomeState extends State<Home> {
       flex: 3,
       child: Column(
         children: [
-          ProfileSearch(controller: _searchController, onSearch: _fetchPage),
+          ProfileSearchBar(controller: _searchController),
           const SizedBox(height: 30),
           ResponsiveVisibility(
             hiddenConditions: const [Condition.largerThan(name: TABLET)],

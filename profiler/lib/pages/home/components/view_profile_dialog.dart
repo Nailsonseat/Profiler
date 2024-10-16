@@ -72,15 +72,18 @@ class _ViewProfileDialogState extends State<ViewProfileDialog> {
                   child: Center(child: CircularProgressIndicator()),
                 );
               } else if (state is FunnyDescriptionSuccess) {
-                return Wrap(
-                  children: [
-                    MarkdownBody(
-                      data: state.funnyDescription,
-                      styleSheet: MarkdownStyleSheet(
-                        p: GoogleFonts.jost(fontSize: 21),
+                return Container(
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  child: Wrap(
+                    children: [
+                      MarkdownBody(
+                        data: state.funnyDescription,
+                        styleSheet: MarkdownStyleSheet(
+                          p: GoogleFonts.jost(fontSize: 21),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 );
               } else if (state is FunnyDescriptionFailure) {
                 return Text(

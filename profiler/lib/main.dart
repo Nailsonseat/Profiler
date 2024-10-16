@@ -9,9 +9,11 @@ import 'api/chatbot.dart';
 import 'api/profile.dart';
 import 'bloc/chatbot/chatbot_bloc.dart';
 import 'bloc/profile/profile_bloc.dart';
+import 'constants/constants.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -32,23 +34,18 @@ class Profiler extends StatelessWidget {
       child: MultiBlocProvider(
         providers: [
           BlocProvider<ProfileBloc>(
-            create: (context) => ProfileBloc(
-              profileApi: RepositoryProvider.of<ProfileApi>(context),
-            ),
+            create: (context) => ProfileBloc(profileApi: RepositoryProvider.of<ProfileApi>(context)),
           ),
           BlocProvider<ChatBotBloc>(
-            create: (context) => ChatBotBloc(
-              chatBotApi: RepositoryProvider.of<ChatBotApi>(context),
-            ),
+            create: (context) => ChatBotBloc(chatBotApi: RepositoryProvider.of<ChatBotApi>(context)),
           ),
           BlocProvider<FunnyDescriptionBloc>(
-            create: (context) => FunnyDescriptionBloc(
-              funnyDescriptionApi: RepositoryProvider.of<FunnyDescriptionApi>(context),
-            ),
+            create: (context) =>
+                FunnyDescriptionBloc(funnyDescriptionApi: RepositoryProvider.of<FunnyDescriptionApi>(context))
           ),
         ],
         child: MaterialApp.router(
-          title: 'Profiler',
+          title: AppConstants.appName,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.purpleAccent),
             useMaterial3: true,

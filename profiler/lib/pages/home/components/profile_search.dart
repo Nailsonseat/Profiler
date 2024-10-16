@@ -1,25 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logger/logger.dart';
+import '../../../bloc/profile/profile_bloc.dart';
 
-class ProfileSearch extends StatelessWidget {
+class ProfileSearchBar extends StatefulWidget {
   final TextEditingController controller;
-  final Function(int) onSearch;
 
-  const ProfileSearch({
+  const ProfileSearchBar({
     super.key,
     required this.controller,
-    required this.onSearch,
   });
 
+  @override
+  State<ProfileSearchBar> createState() => _ProfileSearchBarState();
+}
+
+class _ProfileSearchBarState extends State<ProfileSearchBar> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 70,
       child: SearchBar(
-        controller: controller,
+        controller: widget.controller,
         hintText: 'Search Profile',
+        textStyle: WidgetStateProperty.all(const TextStyle(fontSize: 20)),
         hintStyle: WidgetStateProperty.all(const TextStyle(fontSize: 20)),
-        onChanged: (value) => onSearch(0),
-        leading: const Icon(Icons.search),
+        trailing: [
+          if (widget.controller.text.isNotEmpty) ...[
+            IconButton(
+              icon: const Icon(Icons.clear),
+              onPressed: () {
+                setState(() {
+                  context.read<ProfileBloc>().add(ProfileRefresh());
+                  context.read<ProfileBloc>().add(ProfileFetch(pageKey: 0));
+                  widget.controller.clear();
+                });
+              },
+            ),
+          ]
+        ],
+        onChanged: (value) {
+          setState(() {});
+          if (value == '') {
+            context.read<ProfileBloc>().add(ProfileRefresh());
+            context.read<ProfileBloc>().add(ProfileFetch(pageKey: 0));
+          } else {
+            context.read<ProfileBloc>().add(ProfileSearch(query: value));
+          }
+        },
         padding: WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 20)),
       ),
     );

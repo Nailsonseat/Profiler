@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:profiler/api/chatbot.dart';
 import 'package:profiler/models/chat_message.dart';
 import '../../constants/constants.dart';

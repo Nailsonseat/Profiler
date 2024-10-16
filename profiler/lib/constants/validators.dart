@@ -23,6 +23,9 @@ class Validators {
     if (value == null || value.isEmpty) {
       return 'Name is required';
     }
+    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
+      return 'Name cannot contain numbers or special characters';
+    }
     return null;
   }
 }

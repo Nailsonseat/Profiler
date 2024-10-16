@@ -15,13 +15,27 @@ class ProfileCreate extends ProfileEvent {
 }
 
 class ProfileFetch extends ProfileEvent {
-  final int pageKey;
-  final String? query; // Add this line to accept an optional query
+  final int? pageKey;
+  final String? query;
 
   ProfileFetch({required this.pageKey, this.query});
 
   @override
-  List<Object> get props => [pageKey, query ?? '']; // Include query in props for equality checks
+  List<Object> get props => [pageKey!, query!];
+}
+
+class ProfileSearch extends ProfileEvent {
+  final String query;
+
+  ProfileSearch({required this.query});
+
+  @override
+  List<Object> get props => [query];
+}
+
+class ProfileRefresh extends ProfileEvent {
+  @override
+  List<Object> get props => [];
 }
 
 class ProfileUpdate extends ProfileEvent {
